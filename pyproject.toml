@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = 'specnet'
+version = '0.1' 
+description = 'Python package to work on network analysis and spectral graph theory'
+authors = [
+    {name='Melcion C', email='mcb.edu@proton.me'}
+]
+
+readme = 'README.md'
+license = 'MIT'
+requires-python = '>=3.10'
+keywords = [
+   'Networks',
+   'Graph Theory',
+   'Spectral Graph Theory',
+   'Analysis on Graphs',
+]
+dependencies = [
+    "numpy",
+    "networkx",
+    "scipy",
+]
+
+[project.optional-dependencies]
+packages = [
+     'specnet',
+     'specnet.frames',
+     'specnet.linalg',
+]
