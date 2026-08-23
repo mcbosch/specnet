@@ -95,24 +95,3 @@ class MagGraph(nx.MultiDiGraph):
             self[v][u][key].update(ddd)
             keylist.append(key)
         return keylist
-    #TODO
-    def add_symmetries(self, weight='weight', split_weight=False):
-        r"""
-        Checks that all edges are symmetric and adds edges if necessary
-        """
-        from collections import defaultdict
-
-        symm = defaultdict(float)
-        for u, v, k in self.edges(keys=True):
-            symm[(u, v, k)] += 1
-            symm[(v, u, k)] -= 1
-
-        v = symm.values()
-        for i in v:
-            if i != 0:
-                return False
-        return True
-
-    #TODO
-    def check_symmetries(self) -> bool:
-        pass
