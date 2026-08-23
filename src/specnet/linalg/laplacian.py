@@ -7,10 +7,31 @@ def laplacian(G, *,
               node_weight="weight", 
               normalized=True,
               split_weight=False):
-        r"""Returns the magnetic Laplacian matrix of G
+        r"""Returns the magnetic Laplacian matrix of G. The magnetic
+        Laplacian is a graph operator where there is a potential vector
+        acting on the graph. That is a function 
+        :math:`\alpha:\ell^2(E)\rightarrow \mathbb{R}/2\pi\mathbb{Z}.`
+        
+        The magnetic laplacian is the second order derivate of a function in
+        :math:`\ell^2(V)`. That is :math:`d_{\alpha}^*d_{\alpha}` where 
+        :math:`d_{\alpha}` is the twisted derivate:
+
+        ::math::```
+        (d_{\alpha}f)(e) = e^{i\alpha(e)/2}f(\partial_+e) - 
+                                      e^{-i\alpha(e)/2}f(\partial_-e)  
+        ```
+
+        For a MagGraph G if it is not symmetric we use the definition
+        used in [2]. If the parameter split_weight is True, the edge weight
+        is going to be divided by two. If the graph is symmetric we use the 
+        definition from [1]. For a further explanation on how these definitions
+        are obtained and how they relate we leave the calculations in [3].
 
         Parameters
         ----------
+        G : nx.Graph
+            Graph, can be any kind of nx.Graph or MagGraph.
+
         nodelist : list, optional (default=list(G))
             Node ordering for row/columns.
 
@@ -19,6 +40,8 @@ def laplacian(G, *,
         
         normalized : bool, optional (default=True)
             If True returns the normalized version of the Laplacian
+        
+        split_weight : bool, optional ()
 
         Returns
         -------
@@ -27,7 +50,18 @@ def laplacian(G, *,
 
         References
         ----------
-        ??¿¿
+        _[1] Fabila-Carrasco, J.S., Lledó, F. & Post, O. 
+        A geometric construction of isospectral magnetic graphs. 
+        Anal.Math.Phys. 13, 64 (2023).
+        <https://doi.org/10.1007/s13324-023-00823-9>
+
+        _[2] Fabila-Carrasco, J.S., Lledó, F., Post, O.: 
+        Spectral gaps and discrete magnetic Laplacians. 
+        Linear Algebra Appl. 547, 183–216 (2018).
+        <https://www.sciencedirect.com/science/article/pii/S0024379518300673>
+
+        _[3] Melcion Ciudad Bosch: Calculations
+        <https://mcbosch.github.io/documentations/specnet/magnetic-laplacian-def.pdf>
         """
         from collections import defaultdict
 
