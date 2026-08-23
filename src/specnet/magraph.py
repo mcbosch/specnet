@@ -39,14 +39,13 @@ class MagGraph(nx.MultiDiGraph):
         return e2 
     
      
-    def add_edge(self, n1, n2, key=None, **attr):
+    def add_edge(self, n1, n2, key=None, *, call_from_ebunch=False, **attr):
         r"""
         Adding an edge to the graph. If the graph is symmetric the function 
         add two edges. One in each direction with the opposite potential. 
         """
 
         sym = self.sym
-        
         if sym:            
             k =  super().add_edge(n1, n2, key=key, **attr)
             if 'potential' in attr:
@@ -64,18 +63,38 @@ class MagGraph(nx.MultiDiGraph):
         The function adds multiple edges to the graph. If the graph is symmetric 
         the function adds both directions with the opposite potential.
         """
-        sym = self.sym
-
-        if not sym:
+        if not self.sym:
             return super().add_edges_from(ebunch_to_add, **attr)
-
-        ebunch = []
+        
+        keylist = []
         for e in ebunch_to_add:
-            ebunch.append(e)
-            ebunch.append(self.inverse(e))
-
-        return super().add_edges_from(ebunch, **attr)
-
+            ne = len(e)
+            if ne == 4:
+                u, v, key, dd = e
+            elif ne == 3:
+                if isinstance(e[-1], dict):
+                    u, v, dd = e
+                    key = None
+                else:
+                    u, v, key = e
+                    dd = {}
+            elif ne == 2:
+                u, v = e
+                dd = {}
+                key = None
+            else:
+                msg = f"Edge tuple {e} must be a 2-tuple, 3-tuple or 4-tuple."
+                raise ValueError(msg)
+            ddd = {}
+            ddd.update(attr)
+            ddd.update(dd)
+            key = self.add_edge(u,v,key)
+            self[u][v][key].update(ddd)
+            if 'potential' in ddd:
+                ddd['potential'] = -ddd['potential']
+            self[v][u][key].update(ddd)
+            keylist.append(key)
+        return keylist
     #TODO
     def add_symmetries(self, weight='weight', split_weight=False):
         r"""
