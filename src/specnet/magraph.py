@@ -5,10 +5,32 @@ class MagGraph(nx.MultiDiGraph):
     def __init__(self, sym : bool=False, **attr):
         r"""
         Defines a Magnetic Graph as a nx.MultiDiGraph object allowing
-        multiple edges and loops. Some modifications are done in order
+        multiple edges and loops. If we set sym as True the graph is going
+        to be symmetric. A graph magnetic graph is symmetric if there exists
+        an inverse s.t. maps an edge to the inverse direction, with same weight
+        and opposite potential.
 
-        WARNING: MAGNETIC GRAPHS ARE SYMMETRIC. WE SHOULD ADD A PARAMETER
-        TO SPLIT ONLY ONE DIRECTIONAL EDGES. 
+        If the graph is symmetric, automaticaly is going to add the inverse edges.
+        If we add an edge an the inverse, is going to treat them as different edges. 
+        
+        ```
+        >>> import specnet as spn
+        >>> M = spn.MagGraph(sym=True)
+        >>> M.add_edge(1,2,potential=0.5)
+        >>> M.edges(data=True)
+        [(1,2,{'potential':0.5}), (2,1,{'potential':-0.5})]
+        ```
+        Parameters
+        ----------
+            sym : bool (default=False)
+                Defines if the graph is symmetric and we want to automaticaly add
+                the inverse edges.
+        
+            attr : key valued attributes
+        
+        Returns
+        -------
+            MagGraph object
         """
         self.sym = sym
         super().__init__(**attr)
@@ -16,7 +38,8 @@ class MagGraph(nx.MultiDiGraph):
     @staticmethod
     def inverse(e):
         r"""
-        Returns the inverse direction of an edge.
+        Returns the inverse direction of an edge. Preserves the weight
+        and makes the oposite potential if it exists.
 
         Parameters
         ----------
