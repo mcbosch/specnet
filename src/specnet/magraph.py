@@ -14,9 +14,9 @@ class MagGraph(nx.MultiDiGraph):
         super().__init__(**attr)
 
     @staticmethod
-    def opposite(e):
+    def inverse(e):
         r"""
-        Returns the opposite direction of an edge.
+        Returns the inverse direction of an edge.
 
         Parameters
         ----------
@@ -89,7 +89,7 @@ class MagGraph(nx.MultiDiGraph):
                     dd[key] = 0.5 * w
 
                 ebunch.append(e)
-                ebunch.append(self.opposite(e))
+                ebunch.append(self.inverse(e))
 
         return super().add_edges_from(ebunch, **attr)
 
