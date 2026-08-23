@@ -2,7 +2,7 @@ import networkx as nx
 
 class MagGraph(nx.MultiDiGraph):
 
-    def __init__(self, **attr):
+    def __init__(self, sym : bool=False, **attr):
         r"""
         Defines a Magnetic Graph as a nx.MultiDiGraph object allowing
         multiple edges and loops. Some modifications are done in order
@@ -10,6 +10,7 @@ class MagGraph(nx.MultiDiGraph):
         WARNING: MAGNETIC GRAPHS ARE SYMMETRIC. WE SHOULD ADD A PARAMETER
         TO SPLIT ONLY ONE DIRECTIONAL EDGES. 
         """
+        self.sym = sym
         super().__init__(**attr)
 
     @staticmethod
