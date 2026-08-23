@@ -2,6 +2,7 @@ import pytest
 
 import networkx as nx
 import numpy as np
+import specnet as spn
 
 from specnet.magraph import MagGraph
 
@@ -57,13 +58,13 @@ class TestMagneticLaplacian:
         )
 
         np.testing.assert_almost_equal(
-            self.G1.laplacian().todense(),
+            spn.linalg.laplacian(self.G1).todense(),
             MG1,
             decimal=3,
         )
 
         np.testing.assert_almost_equal(
-            self.G2.laplacian().todense(),
+            spn.linalg.laplacian(self.G2).todense(),
             GL,
             decimal=3,
         )
