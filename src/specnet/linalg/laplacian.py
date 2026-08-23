@@ -55,12 +55,15 @@ def laplacian(G, *,
 
         # We compute the relative weights of nodes
         rel_w_nodes = defaultdict(float)
+        sw = 0.5 if split_weight else 1
 
         # Run over out-edges
         for u, v, dd in G.edges(nbunch=nodelist, data=True):
-            rel_w_nodes[(u)] += dd.get(edge_weight, 1)
-            if not G.sym:
+            if G.sym:
                 rel_w_nodes[(u)] += dd.get(edge_weight, 1)
+            else:
+                rel_w_nodes[(u)] += sw * dd.get(edge_weight, 1)
+                rel_w_nodes[(v)] += sw * dd.get(edge_weight, 1)
         
         
         rows, cols, data = [], [], defaultdict(complex)
@@ -84,7 +87,6 @@ def laplacian(G, *,
                 data[(ui, vi)] += (dd.get(edge_weight, 1) * 
                                    np.exp(1j * dd.get('potential',0)))/norm_term
             else:
-                sw = 0.5 if split_weight else 1
                 data[(ui, vi)] += sw * (dd.get(edge_weight, 1) * 
                                                    np.exp(1j * dd.get('potential',0)))/norm_term
                 data[(vi, ui)] += sw * (dd.get(edge_weight, 1) * 
