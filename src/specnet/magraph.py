@@ -39,20 +39,19 @@ class MagGraph(nx.MultiDiGraph):
         return e2 
     
      
-    def add_edge(self, n1, n2, key=None, sym=False, split_weight=False, weight="weight", **attr):
+    def add_edge(self, n1, n2, key=None, **attr):
         r"""
         Adding an edge to the graph. If the graph is symmetric the function 
         add two edges. One in each direction with the opposite potential. 
         """
-        
-        if sym:
-            if split_weight:
-                attr[weight] = 0.5 * attr.get(weight, 1)
-            
-            k =  super().add_edge(n1, n2, key=key, **attr)
 
+        sym = self.sym
+        
+        if sym:            
+            k =  super().add_edge(n1, n2, key=key, **attr)
             if 'potential' in attr:
                 attr['potential'] = - attr['potential']
+
             super().add_edge(n2, n1, key=k, **attr)
 
         else:
@@ -60,36 +59,20 @@ class MagGraph(nx.MultiDiGraph):
         return k
 
 
-    def add_edges_from(self, ebunch_to_add, sym=True, weight='weight', split_weight=False, **attr):
+    def add_edges_from(self, ebunch_to_add, **attr):
         r"""
         The function adds multiple edges to the graph. If the graph is symmetric 
         the function adds both directions with the opposite potential.
         """
+        sym = self.sym
 
         if not sym:
             return super().add_edges_from(ebunch_to_add, **attr)
 
         ebunch = []
-
         for e in ebunch_to_add:
-            if sym:
-                if split_weight:
-                    dd = e[-1]
-
-                    if not isinstance(dd, dict):
-                        dd = {}
-                        e = e + (dd,)
-
-                    if isinstance(weight, str):
-                        w = dd.get(weight, 1) if weight in dd else attr.get(weight, 1)
-                        key = weight
-                    else:
-                        w = dd.get('weight', weight)
-                        key = 'weight'
-                    dd[key] = 0.5 * w
-
-                ebunch.append(e)
-                ebunch.append(self.inverse(e))
+            ebunch.append(e)
+            ebunch.append(self.inverse(e))
 
         return super().add_edges_from(ebunch, **attr)
 
