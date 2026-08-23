@@ -3,7 +3,7 @@ import pytest
 import networkx as nx
 import numpy as np
 
-from src.magraph import MagGraph
+from specnet.magraph import MagGraph
 
 
 class TestMagneticLaplacian:
