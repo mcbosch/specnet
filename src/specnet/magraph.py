@@ -39,7 +39,7 @@ class MagGraph(nx.MultiDiGraph):
         return e2 
     
      
-    def add_edge(self, n1, n2, key=None, *, call_from_ebunch=False, **attr):
+    def add_edge(self, n1, n2, key=None, **attr):
         r"""
         Adding an edge to the graph. If the graph is symmetric the function 
         add two edges. One in each direction with the opposite potential. 
