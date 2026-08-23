@@ -16,7 +16,7 @@ class TestMagneticLaplacian:
         graph we add edges between nodes in both directions to check that we have a real entry.
         """
 
-        cls.G1 = MagGraph()
+        cls.G1 = MagGraph(sym=True)
         cls.G1.add_edges_from((
             (1,2),
             (1,2,{'potential':0.3}),
@@ -24,7 +24,7 @@ class TestMagneticLaplacian:
         ))
 
 
-        cls.G2 = MagGraph()
+        cls.G2 = MagGraph(sym=True)
         cls.G2.add_edges_from((
             (1,2,{'potential':np.pi}),
             (2,3,{'potential':np.pi}),

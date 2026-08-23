@@ -2,7 +2,7 @@ import networkx as nx
 
 class MagGraph(nx.MultiDiGraph):
 
-    def __init__(self, **attr):
+    def __init__(self, sym : bool=False, **attr):
         r"""
         Defines a Magnetic Graph as a nx.MultiDiGraph object allowing
         multiple edges and loops. Some modifications are done in order
@@ -10,12 +10,13 @@ class MagGraph(nx.MultiDiGraph):
         WARNING: MAGNETIC GRAPHS ARE SYMMETRIC. WE SHOULD ADD A PARAMETER
         TO SPLIT ONLY ONE DIRECTIONAL EDGES. 
         """
+        self.sym = sym
         super().__init__(**attr)
 
     @staticmethod
-    def opposite(e):
+    def inverse(e):
         r"""
-        Returns the opposite direction of an edge.
+        Returns the inverse direction of an edge.
 
         Parameters
         ----------
@@ -38,20 +39,18 @@ class MagGraph(nx.MultiDiGraph):
         return e2 
     
      
-    def add_edge(self, n1, n2, key=None, sym=False, split_weight=False, weight="weight", **attr):
+    def add_edge(self, n1, n2, key=None, **attr):
         r"""
         Adding an edge to the graph. If the graph is symmetric the function 
         add two edges. One in each direction with the opposite potential. 
         """
-        
-        if sym:
-            if split_weight:
-                attr[weight] = 0.5 * attr.get(weight, 1)
-            
-            k =  super().add_edge(n1, n2, key=key, **attr)
 
+        sym = self.sym
+        if sym:            
+            k =  super().add_edge(n1, n2, key=key, **attr)
             if 'potential' in attr:
                 attr['potential'] = - attr['potential']
+
             super().add_edge(n2, n1, key=k, **attr)
 
         else:
@@ -59,39 +58,43 @@ class MagGraph(nx.MultiDiGraph):
         return k
 
 
-    def add_edges_from(self, ebunch_to_add, sym=True, weight='weight', split_weight=False, **attr):
+    def add_edges_from(self, ebunch_to_add, **attr):
         r"""
         The function adds multiple edges to the graph. If the graph is symmetric 
         the function adds both directions with the opposite potential.
         """
-
-        if not sym:
+        if not self.sym:
             return super().add_edges_from(ebunch_to_add, **attr)
-
-        ebunch = []
-
+        
+        keylist = []
         for e in ebunch_to_add:
-            if sym:
-                if split_weight:
-                    dd = e[-1]
-
-                    if not isinstance(dd, dict):
-                        dd = {}
-                        e = e + (dd,)
-
-                    if isinstance(weight, str):
-                        w = dd.get(weight, 1) if weight in dd else attr.get(weight, 1)
-                        key = weight
-                    else:
-                        w = dd.get('weight', weight)
-                        key = 'weight'
-                    dd[key] = 0.5 * w
-
-                ebunch.append(e)
-                ebunch.append(self.opposite(e))
-
-        return super().add_edges_from(ebunch, **attr)
-
+            ne = len(e)
+            if ne == 4:
+                u, v, key, dd = e
+            elif ne == 3:
+                if isinstance(e[-1], dict):
+                    u, v, dd = e
+                    key = None
+                else:
+                    u, v, key = e
+                    dd = {}
+            elif ne == 2:
+                u, v = e
+                dd = {}
+                key = None
+            else:
+                msg = f"Edge tuple {e} must be a 2-tuple, 3-tuple or 4-tuple."
+                raise ValueError(msg)
+            ddd = {}
+            ddd.update(attr)
+            ddd.update(dd)
+            key = self.add_edge(u,v,key)
+            self[u][v][key].update(ddd)
+            if 'potential' in ddd:
+                ddd['potential'] = -ddd['potential']
+            self[v][u][key].update(ddd)
+            keylist.append(key)
+        return keylist
     #TODO
     def add_symmetries(self, weight='weight', split_weight=False):
         r"""
