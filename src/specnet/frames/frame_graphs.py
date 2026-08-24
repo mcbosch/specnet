@@ -54,22 +54,24 @@ class FrameFamily:
             if e[0] in self.contr_nodes and e[1] in self.contr_nodes: e_in_contr_nodes.append(e)
 
         # Make a MultiGraph if the original graph is not a multigraph and has edges in between contracting nodes.
-        if not self.graph.is_multigraph() and len(e_in_contr_nodes) > 0:
+        g_is_mult = self.graph.is_multigraph()
+        if not g_is_mult and len(e_in_contr_nodes) > 0:
             F = nx.MultiDiGraph() if self.graph.is_directed() else nx.MultiGraph()
         else:
             F = type(self.graph)()
      
         ebunch_to_add = []
-        edges = self.graph.edges(data=True, keys=True) if F.is_multigraph else self.graph.edges(data=True)
+        edges = self.graph.edges(data=True, keys=True) if g_is_mult else self.graph.edges(data=True)
         for i in range(a):
             for e in edges:
                 s = e[0] if e[0] in self.contr_nodes else (e[0], i)
                 t = e[1] if e[1] in self.contr_nodes else (e[1], i)
-                if F.is_multigraph:
-                    ebunch_to_add.append((s, t, e[-1]))
-                else:
+                if g_is_mult:
                     k = e[2]
                     ebunch_to_add.append((s, t, k, e[-1]))
+                else:
+                    ebunch_to_add.append((s, t, e[-1]))
+                    
         F.add_edges_from(ebunch_to_add)
         return F
 
@@ -97,14 +99,13 @@ class FrameFamily:
             if e[0] in self.contr_nodes and e[1] in self.contr_nodes: e_in_contr_nodes.append(e)
             if e[0] in S1 and e[1] in S1: e_in_contr_nodes.append(e)
 
-        if not self.graph.is_multigraph() and len(e_in_contr_nodes) > 0:
+        g_is_mult = self.graph.is_multigraph()
+        if not g_is_mult and len(e_in_contr_nodes) > 0:
             F = nx.MultiDiGraph() if self.graph.is_directed() else nx.MultiGraph()
         else:
             F = type(self.graph)()
 
-        not_sym = F.sym if isinstance(F, MagGraph) else False
-
-        edges = self.graph.edges(data=True)
+        edges = self.graph.edges(data=True, keys=True) if g_is_mult else self.graph.edges(data=True)
         s = len(A)
         for j in range(s):
             a = A[j]
@@ -121,7 +122,11 @@ class FrameFamily:
                     else:
                         t = (e[1], i + 1, a, j)
 
-                    ebunch_to_add.append((s, t, e[-1]))
+                    if g_is_mult:
+                        k = e[2]
+                        ebunch_to_add.append((s, t, k, e[-1]))
+                    else:
+                        ebunch_to_add.append((s, t, e[-1]))
                 F.add_edges_from(ebunch_to_add)
 
         return F
