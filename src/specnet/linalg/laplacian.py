@@ -92,13 +92,13 @@ def laplacian(G, *,
         sw = 0.5 if split_weight else 1
 
         # Run over out-edges
-        for u, v, dd in G.edges(nbunch=nodelist, data=True):
+        for u, v, dd in G.edges(nbunch=nodelist, data=True):    
+            ui, vi = node_index[u], node_index[v]
             if G.sym:
-                rel_w_nodes[(u)] += dd.get(edge_weight, 1)
+                rel_w_nodes[(ui)] += dd.get(edge_weight, 1)
             else:
-                rel_w_nodes[(u)] += sw * dd.get(edge_weight, 1)
-                rel_w_nodes[(v)] += sw * dd.get(edge_weight, 1)
-        
+                rel_w_nodes[(ui)] += sw * dd.get(edge_weight, 1)
+                rel_w_nodes[(vi)] += sw * dd.get(edge_weight, 1)
         
         rows, cols, data = [], [], defaultdict(complex)
         for u, v, dd in G.edges(data=True):
@@ -115,7 +115,7 @@ def laplacian(G, *,
                     cols.append(ui)
 
             wu, wv = G.nodes[u].get(node_weight, 1), G.nodes[v].get(node_weight, 1)
-            norm_term = np.sqrt(rel_w_nodes[u]/wu * rel_w_nodes[v]/wv) if normalized else 1
+            norm_term = np.sqrt(rel_w_nodes[ui]/wu * rel_w_nodes[vi]/wv) if normalized else 1
 
             if G.sym:
                 data[(ui, vi)] += (dd.get(edge_weight, 1) * 
@@ -130,7 +130,7 @@ def laplacian(G, *,
         H = sp.sparse.csr_array((data_values, (rows, cols)), shape=(n, n), dtype=complex)
 
         # Build degree matrix D
-        diags = np.ones(n,) if normalized else np.abs(H).sum(axis=1).ravel() 
+        diags = np.ones(n,) if normalized else np.array([rel_w_nodes[i] for i in range(n)])
         D = sp.sparse.dia_array((diags, 0), shape=(n, n), dtype=complex).tocsr()
         L = D - H
         
