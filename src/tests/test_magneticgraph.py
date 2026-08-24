@@ -7,64 +7,84 @@ import specnet as spn
 from specnet.magraph import MagGraph
 
 
-class TestMagneticLaplacian:
+class TestMagGraph:
     @classmethod
     def setup_class(cls):
-        r"""
-        We define test for the magnetic laplacian matrix, to check if it correctly
-        returns the matrices for an undirected graph and for a directed graph. In the directed
-        graph we add edges between nodes in both directions to check that we have a real entry.
-        """
+         r"""
+         Define possible errors.
+         """
+         # Errors related with the inversion of an edge
+         cls.err_inv_sd = "Error switching directions"
+         cls.err_inv_pa = "Error preserving attributes"
+         cls.err_inv_op = "Error changing potential"
 
-        cls.G1 = MagGraph(sym=True)
-        cls.G1.add_edges_from((
-            (1,2),
-            (1,2,{'potential':0.3}),
-            (3,2)
-        ))
+    @staticmethod
+    def get_edge_attr(e):
+        ne = len(e)
+        if ne == 4:
+            u, v, k, d = e
+        elif ne == 3:
+            if isinstance(e[-1], dict):
+                u, v, d = e
+                k = None
+            else:
+                u, v, k = e
+                d = None
+        elif ne == 2:
+            u, v = e
+            k, d = None, None
+        else:
+            raise ValueError(f"Edges must be 2-tuple, 3-tuple or 4-tuple")
+        
+        return u, v, k, d
+    
+    def compare_edges(self, e1, e2, inverted=False):
+        n1, n2 = len(e1), len(e2)
+        assert n1==n2, f"The edges {e1} and {e2} are not of the same length"
 
+        u1, v1, k1, d1 = self.get_edge_attr(e1)
+        u2, v2, k2, d2 = self.get_edge_attr(e2)
 
-        cls.G2 = MagGraph(sym=True)
-        cls.G2.add_edges_from((
-            (1,2,{'potential':np.pi}),
-            (2,3,{'potential':np.pi}),
-            (3,4,{'potential':np.pi}),
-            (4,1,{'potential':np.pi})
-        ))
+        if inverted:
+            assert u1 == v2 and v1 == u2, self.err_inv_sd
+        else:
+            assert u1 == u2 and v1 == v2, "Edges are not the same"
+        assert k1 == k2, "Edges don't have the same key"
+        if d1 == None or d2 == None:
+            assert d1 == d2
+        keys = d1.keys()
+        err_msg = "Edges have different attributes"
+        for k in keys:
+            assert k in d2, err_msg
+            if k=='potential' and inverted:
+                assert d1[k]==-d2[k], "The potential is not inverted"
+            else:
+                assert d1[k] == d2[k], err_msg
 
+        return True
+         
+    def test_inverse(self):
+        e = (1,2,0,{'w':2, 'potential':1})
+        ei = MagGraph.inverse(e)
 
-        cls.G3 = MagGraph()
-        cls.G3.add_edges_from((
+        assert self.compare_edges(e, ei, inverted=True)
+        
+    def test_add_edge(self):
+        # Would be great to check the edges in G._adj and not in G.edges
+        G = MagGraph(sym=True)
+        H = MagGraph(sym=False)
+        e = (1,2,1,{'weight':2, 'potential':1})
 
-        ))
+        G.add_edge(1,2,1,weight = 2, potential = 1)
+        H.add_edge(1,2,1,weight = 2, potential = 1)
 
-    def test_mag_laplacian(self):
+        edges_G = list(G.edges(data=True, keys=True))
+        edges_H = list(H.edges(data=True, keys=True))
 
-        MG1 = np.array(
-            [
-                [1, -(1+np.exp(1j * 0.3))/np.sqrt(6), 0],
-                [-(1+np.exp(1j * -0.3))/np.sqrt(6), 1, -1/np.sqrt(3)],
-                [0, -1/np.sqrt(3), 1],
-            ]
-        )
+        assert len(edges_G) == 2, "G should have 2 edges"
+        assert len(edges_H) == 1, "H should have 1 edge"
 
-        GL = np.array(
-            [
-                [1, 0.5, 0, 0.5], 
-                [0.5, 1, 0.5, 0], 
-                [0, 0.5, 1, 0.5], 
-                [0.5, 0, 0.5, 1],
-            ]
-        )
+        assert self.compare_edges(edges_G[0], e, inverted=False)
+        assert self.compare_edges(edges_H[0], e, inverted=False)
 
-        np.testing.assert_almost_equal(
-            spn.linalg.laplacian(self.G1).todense(),
-            MG1,
-            decimal=3,
-        )
-
-        np.testing.assert_almost_equal(
-            spn.linalg.laplacian(self.G2).todense(),
-            GL,
-            decimal=3,
-        )
+        assert self.compare_edges(edges_G[0], edges_G[1], inverted=True)
