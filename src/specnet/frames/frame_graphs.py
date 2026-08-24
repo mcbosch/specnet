@@ -58,7 +58,10 @@ class FrameFamily:
         if not g_is_mult and len(e_in_contr_nodes) > 0:
             F = nx.MultiDiGraph() if self.graph.is_directed() else nx.MultiGraph()
         else:
-            F = type(self.graph)()
+            if isinstance(self.graph, MagGraph):
+                F = MagGraph(sym=False)
+            else:
+                F = type(self.graph)()
      
         ebunch_to_add = []
         edges = self.graph.edges(data=True, keys=True) if g_is_mult else self.graph.edges(data=True)
@@ -73,8 +76,11 @@ class FrameFamily:
                     ebunch_to_add.append((s, t, e[-1]))
                     
         F.add_edges_from(ebunch_to_add)
+        if isinstance(F, MagGraph):
+            F.sym = self.graph.sym
         return F
 
+    # TODO: Avoid two fors and create frames and then glue them
     def generate_r_frame(self, A : list, S1 : list):
         r"""
         This function generates a graph consisting of a combination of the frame
@@ -103,7 +109,10 @@ class FrameFamily:
         if not g_is_mult and len(e_in_contr_nodes) > 0:
             F = nx.MultiDiGraph() if self.graph.is_directed() else nx.MultiGraph()
         else:
-            F = type(self.graph)()
+            if isinstance(self.graph, MagGraph):
+                F = MagGraph(sym=False)
+            else:
+                F = type(self.graph)()
 
         edges = self.graph.edges(data=True, keys=True) if g_is_mult else self.graph.edges(data=True)
         s = len(A)
@@ -113,14 +122,14 @@ class FrameFamily:
                 ebunch_to_add = []
                 for e in edges:
                     if e[0] in self.contr_nodes:
-                        s = e[0] if e[0] in S1 else (e[0], a, j)
+                        s = e[0] if e[0] in S1 else (e[0], j)
                     else:
-                        s = (e[0], i + 1, a, j)
+                        s = (e[0], i, j)
 
                     if e[1] in self.contr_nodes:
-                        t = e[1] if e[1] in S1 else (e[1], a, j)
+                        t = e[1] if e[1] in S1 else (e[1], j)
                     else:
-                        t = (e[1], i + 1, a, j)
+                        t = (e[1], i, j)
 
                     if g_is_mult:
                         k = e[2]
@@ -129,4 +138,6 @@ class FrameFamily:
                         ebunch_to_add.append((s, t, e[-1]))
                 F.add_edges_from(ebunch_to_add)
 
+        if isinstance(F, MagGraph):
+            F.sym = self.graph.sym
         return F
