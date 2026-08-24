@@ -58,15 +58,14 @@ class FrameFamily:
             F = nx.MultiDiGraph() if self.graph.is_directed() else nx.MultiGraph()
         else:
             F = type(self.graph)()
-
-        not_sym = F.sym if isinstance(F, MagGraph) else False
+     
         ebunch_to_add = []
-        edges = self.graph.edges(data=True) if not_sym else self.graph.edges(data=True, keys=True)
+        edges = self.graph.edges(data=True, keys=True) if F.is_multigraph else self.graph.edges(data=True)
         for i in range(a):
             for e in edges:
                 s = e[0] if e[0] in self.contr_nodes else (e[0], i)
                 t = e[1] if e[1] in self.contr_nodes else (e[1], i)
-                if not_sym:
+                if F.is_multigraph:
                     ebunch_to_add.append((s, t, e[-1]))
                 else:
                     k = e[2]
@@ -103,6 +102,7 @@ class FrameFamily:
         else:
             F = type(self.graph)()
 
+        not_sym = F.sym if isinstance(F, MagGraph) else False
 
         edges = self.graph.edges(data=True)
         s = len(A)
