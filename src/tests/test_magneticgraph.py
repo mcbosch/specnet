@@ -122,19 +122,27 @@ class TestMagGraph:
         e2 = (1,2,2)
         e3 = (2,3,1,{'potential':-1})
         ebunch = [e1, e2, e3]
+        ebunch_p_inv = list(map(MagGraph.inverse, ebunch))
 
         G = MagGraph(sym=True)
+        G2 = MagGraph(sym=True)
         H = MagGraph(sym=False)
 
         G.add_edges_from(ebunch)
+        G2.add_edges_from(ebunch_p_inv)
         H.add_edges_from(ebunch)
 
         assert len(G.edges()) == 2 * len(ebunch)
+        assert len(G2.edges()) == 2 * len(ebunch)
         assert len(H.edges()) == len(ebunch)
 
         assert self.assert_edge_in_adj(G, e1[0], e1[1], 0, e1[-1], inverse=True)
         assert self.assert_edge_in_adj(G, e2[0], e2[1], 2, {}, inverse=True)
         assert self.assert_edge_in_adj(G, e3[0], e3[1], 1, e3[-1], inverse=True)
+
+        assert self.assert_edge_in_adj(G2, e1[0], e1[1], 0, e1[-1], inverse=True)
+        assert self.assert_edge_in_adj(G2, e2[0], e2[1], 2, {}, inverse=True)
+        assert self.assert_edge_in_adj(G2, e3[0], e3[1], 1, e3[-1], inverse=True)
 
         assert self.assert_edge_in_adj(H, e1[0], e1[1], 0, e1[-1], inverse=False)
         assert self.assert_edge_in_adj(H, e2[0], e2[1], 2, {}, inverse=False)

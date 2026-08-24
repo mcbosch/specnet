@@ -9,8 +9,10 @@ class FrameFamily:
     def __init__(self, G : nx.Graph, S : list = []):
         r"""
         Generates a frame family of graphs following the construction
-        proposed in _[1]. For the construction we need a initial graph
+        proposed in [1]. For the construction we need a initial graph
         `G_0` and a subset of vertices `S` which defines the contraction vertices.
+        Thus an a frame is a graph consisting a direct sum of a copies `G_0` making 
+        the quotient with the nodes S (contracting them).
 
         Parameters
         ----------
@@ -20,10 +22,16 @@ class FrameFamily:
         Returns
         -------
          - A FrameFamily object to treat the family of the frame graphs. 
+        
+        References
+        ----------
+        _[1] Fabila-Carrasco, J.S., Lledó, F. & Post, O. 
+        A geometric construction of isospectral magnetic graphs. 
+        Anal.Math.Phys. 13, 64 (2023).
+        <https://doi.org/10.1007/s13324-023-00823-9>
         """
 
         # Test if the objects are allowed.
-
         assert isinstance(G, nx.Graph), "Error: introduce a graph object. "
         assert isinstance(S, list), "Error: introduce a list object."
 
@@ -32,7 +40,6 @@ class FrameFamily:
             assert s in nodes, "Elements of S must be nodes"
 
         # Define initial objects
-
         self.graph = G
         self.contr_nodes = S
 
@@ -41,26 +48,30 @@ class FrameFamily:
         r"""
         Generation cost O(a·E)
         """
+        # Check if there are edges between contracting nodes
         e_in_contr_nodes = []
         for e in self.graph.edges(self.contr_nodes):
             if e[0] in self.contr_nodes and e[1] in self.contr_nodes: e_in_contr_nodes.append(e)
 
+        # Make a MultiGraph if the original graph is not a multigraph and has edges in between contracting nodes.
         if not self.graph.is_multigraph() and len(e_in_contr_nodes) > 0:
             F = nx.MultiDiGraph() if self.graph.is_directed() else nx.MultiGraph()
         else:
             F = type(self.graph)()
 
-        
-        edges = self.graph.edges(data=True)
+        not_sym = F.sym if isinstance(F, MagGraph) else False
+        ebunch_to_add = []
+        edges = self.graph.edges(data=True) if not_sym else self.graph.edges(data=True, keys=True)
         for i in range(a):
-            ebunch_to_add = []
             for e in edges:
                 s = e[0] if e[0] in self.contr_nodes else (e[0], i)
                 t = e[1] if e[1] in self.contr_nodes else (e[1], i)
-                ebunch_to_add.append((s, t, e[-1]))
-
-            F.add_edges_from(ebunch_to_add)
-
+                if not_sym:
+                    ebunch_to_add.append((s, t, e[-1]))
+                else:
+                    k = e[2]
+                    ebunch_to_add.append((s, t, k, e[-1]))
+        F.add_edges_from(ebunch_to_add)
         return F
 
     
