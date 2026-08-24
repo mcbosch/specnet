@@ -74,11 +74,6 @@ class FrameFamily:
         F.add_edges_from(ebunch_to_add)
         return F
 
-    
-    def spectra_frame(self, a : int):
-        # TODO
-        pass
-
     def generate_r_frame(self, A : list, S1 : list):
         r"""
         This function generates a graph consisting of a combination of the frame
@@ -130,8 +125,3 @@ class FrameFamily:
                 F.add_edges_from(ebunch_to_add)
 
         return F
-
-    
-    def spectra_r_frame(self, A : list):
-        # TODO
-        pass
