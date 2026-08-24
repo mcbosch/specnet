@@ -1,3 +1,20 @@
+# Specnet
+
+`specnet` is a python package focused on Spectral Graph Theory and Network analysis. This package has the same architecture of `networkx` since we want to make an extension of this package that includes:
+
+- **Working with general magnetic graphs and magnetic laplacian**.  Unlike `networkx` we build the laplacian in a more general framework and allowing to define magnetic potentials. 
+- **Create Frame Family Graphs**. This graphs allows us to build isospectral example graphs. 
+
+Future work is going to focus on create functions to work with signals on graphs, visualization tools, and spectral methods (further than only computing the spectra).
+
+## Installation
+To install the package you can run the following command in the enviorement you want to install the package.
+
+```cmd
+pip install git+https://github.com/mcbosch/specnet.git
+```
+
+For a tutorial on `specnet` ussage see [`specnet` tutorial]()
 ## References
 
 <a id="1" href="https://doi.org/10.1007/s13324-023-00823-9">[1]</a> Fabila-Carrasco, J.S., Lledó, F. & Post, O. A geometric construction of isospectral magnetic graphs. Anal.Math.Phys. 13, 64 (2023). 
