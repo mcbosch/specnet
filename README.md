@@ -8,13 +8,39 @@
 Future work is going to focus on create functions to work with signals on graphs, visualization tools, and spectral methods (further than only computing the spectra).
 
 ## Installation
-To install the package you can run the following command in the enviorement you want to install the package.
+To install the package you can run the following command in the enviorement you want to install the package:
 
-```cmd
+```
 pip install git+https://github.com/mcbosch/specnet.git
 ```
+To install an specific version (now only v1.0 available) you can run:
+```
+pip install git+https://github.com/mcbosch/specnet.git@v1.0
+```
 
-For a tutorial on `specnet` ussage see [`specnet` tutorial]()
+### Create a Virtual env and Install
+
+If you want to run experiments on your computer and create a virtual enviorment with this package you can create a folder where you want to work, go to that folder and execute the following code on your machine:
+#### VSCode Terminal or Windows Powershell
+```
+> python -m venv env_name
+> env_name\Scripts\activate
+> pip install git+https://github.com/mcbosch/specnet.git
+```
+
+#### Linux, MacOS or GitBash
+```
+$ python -m venv env_name
+$ source env_name/Scripts/activate
+$ pip install git+https://github.com/mcbosch/specnet.git
+```
+
+#### Conda
+```
+> conda create --name env_name python=3.10 
+> conda activate env_name
+> pip install git+https://github.com/mcbosch/specnet.git
+```
 ## References
 
 <a id="1" href="https://doi.org/10.1007/s13324-023-00823-9">[1]</a> Fabila-Carrasco, J.S., Lledó, F. & Post, O. A geometric construction of isospectral magnetic graphs. Anal.Math.Phys. 13, 64 (2023). 
