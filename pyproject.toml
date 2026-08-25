@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = 'specnet'
-version = '0.1' 
+version = '1.0' 
 description = 'Python package to work on network analysis and spectral graph theory'
 authors = [
     {name='Melcion C', email='mcb.edu@proton.me'}
