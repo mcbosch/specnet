@@ -10,6 +10,8 @@ jobs:
         uses: actions/checkout@v6
       - name: Touch-file-to-test
         run: touch src/tests/__init__.py
+      - name: Check python-version
+        run: python --version
       - name: Check pytest-version
         run: pytest --version
       - name: Run tests
