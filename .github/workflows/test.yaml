@@ -2,9 +2,15 @@ name: test
 run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 jobs:
-  check-bats-version:
+  run-pytest-tests:
     runs-on: ubuntu-latest
+    
     steps:
-      - run: touch home/runner/work/specnet/specnet/src/tests/__init__.py
-      - run: pip install pytest
-      - run: pytest home/runner/work/specnet/specnet/src/tests/test_magnetigraph.py
+      - name: Checkout-repo
+        uses: actions/checkout@v6
+      - name: Touch-file-to-test
+        run: touch src/tests/__init__.py
+      - name: Check pytest-version
+        run: pytest --version
+      - name: Run tests
+        run: pytest src/tests/test_magnetigraph.py
