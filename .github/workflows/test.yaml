@@ -5,4 +5,4 @@ jobs:
   check-bats-version:
     runs-on: ubuntu-latest
     steps:
-      - run: touch ../../src/tests/__init__.py
+      - run: pwd;ls
