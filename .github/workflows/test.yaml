@@ -15,4 +15,4 @@ jobs:
       - name: Install pytest
         run: pip install pytest
       - name: Run tests
-        run: pytest src/tests/test_magnetigraph.py
+        run: pytest src/tests/test_magneticgraph.py
