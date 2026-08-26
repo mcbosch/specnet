@@ -12,7 +12,7 @@ jobs:
         run: touch src/tests/__init__.py
       - name: Check python-version
         run: python --version
-      - name: Check pytest-version
-        run: pytest --version
+      - name: Install pytest
+        run: pip install pytest
       - name: Run tests
         run: pytest src/tests/test_magnetigraph.py
