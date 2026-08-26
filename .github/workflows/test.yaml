@@ -1,3 +1,8 @@
 name: test
+run-name: ${{ github.actor }} is learning GitHub Actions
+on: [push]
 jobs:
-  command: touch src/tests/__init__.py
+  check-bats-version:
+    runs-on: ubuntu-latest
+    steps:
+      - run: touch src/tests/__init__.py
