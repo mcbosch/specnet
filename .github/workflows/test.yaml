@@ -5,4 +5,6 @@ jobs:
   check-bats-version:
     runs-on: ubuntu-latest
     steps:
-      - run: pwd;ls
+      - run: touch home/runner/work/specnet/specnet/src/tests/__init__.py
+      - run: pip install pytest
+      - run: pytest home/runner/work/specnet/specnet/src/tests/test_magnetigraph.py
