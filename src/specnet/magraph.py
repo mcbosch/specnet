@@ -2,7 +2,7 @@ import networkx as nx
 
 class MagGraph(nx.MultiDiGraph):
 
-    def __init__(self, sym : bool=False, **attr):
+    def __init__(self, sym : bool=True, **attr):
         r"""
         Defines a Magnetic Graph as a nx.MultiDiGraph object allowing
         multiple edges and loops. If we set sym as True the graph is going
