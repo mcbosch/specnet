@@ -1,4 +1,3 @@
 name: test
-command: touch src/tests/__init__.py
-files:
-  - path: src/tests/__init__.py
+jobs:
+  command: touch src/tests/__init__.py
