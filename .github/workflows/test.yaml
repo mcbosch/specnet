@@ -1,6 +1,9 @@
 name: test
 run-name: ${{ github.actor }} did a push
-on: [push]
+on: 
+  push:
+    tags:
+      - "execute-tests-[0-9]+"
 jobs:
   run-pytest-tests:
     runs-on: ubuntu-latest
