@@ -11,8 +11,10 @@ jobs:
       - name: Touch-file-to-test
         run: touch src/tests/__init__.py
       - name: Check python and install dependencies
-        run: python --version
-        run: pip install -r requirements.txt
+        run: |
+        python --version
+        pip install -r requirements.txt
       - name: Run tests
-        run: pip install pytest
-        run: pytest src/tests/test_magneticgraph.py
+        run: |
+        pip install pytest
+        pytest src/tests/test_magneticgraph.py
