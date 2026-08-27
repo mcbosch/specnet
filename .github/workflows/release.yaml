@@ -36,7 +36,7 @@ jobs:
       # Now there is a dist folder with a .whl (Wheel) file  and a .tar.gz
       # Upload distribution files as artifact of github actions
       - name: Store the distribution packages
-        uses:: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v5
         with:
           name: python-package-distributions
           path: dist/
