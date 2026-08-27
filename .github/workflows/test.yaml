@@ -14,7 +14,12 @@ jobs:
         run: |
           python --version
           pip install -r requirements.txt
-      - name: Run tests
-        run: |
           pip install pytest
-          pytest src/tests/test_magneticgraph.py
+      - name: Run test graph creation
+        run: pytest src/tests/test_magneticgraph.py
+      - name: Run test laplacian
+        run: pytest src/linalg/tests/test_laplacian.py
+      - name: Run test frames
+        run: |
+          pytest src/frames/tests/test_frames.py
+          pytest src/frames/tests/test_frames_spectrum.py
