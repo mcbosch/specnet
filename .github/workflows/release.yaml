@@ -1,0 +1,63 @@
+name: Publish to PyPI
+
+on: 
+  push:
+    tags:
+      - "v[0-9].[0-9]"
+
+env:
+  PACKAGE_NAME: "specnet"
+  OWNER: "mcbosch"
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credential: false
+      - name: Set up python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Install pypa/build
+        run: >-
+          python3 -m
+          pip install
+          build
+          --user
+      # Executing build is going to create a dist folder
+      # dist folder goes for distrubution creating two files
+      - name: Build binary wheel and source tarball
+        run: python3 -m build
+      # Now there is a dist folder with a .whl (Wheel) file  and a .tar.gz
+      # Upload distribution files as artifact of github actions
+      - name: Store the distribution packages
+        uses:: actions/upload-artifact@v5
+        with:
+          name: python-package-distributions
+          path: dist/
+      
+  publish-to-pypi:
+    name: Publish specnet to PyPI
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    enviorment:
+      name: pypi
+      url: https://pypi.org/p/specnet
+    permissions:
+      id-token: write
+    
+    steps:
+      # We download the distributions files created before
+      - name: Download all the distributions
+        uses: actions/download-artifact@v6
+        with: 
+          name: python-package-distributions
+          path: dist/
+      - name: Publish distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
