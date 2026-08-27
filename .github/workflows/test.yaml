@@ -10,9 +10,11 @@ jobs:
         uses: actions/checkout@v6
       - name: Touch-file-to-test
         run: touch src/tests/__init__.py
-      - name: Check python-version
-        run: python --version
-      - name: Install pytest
-        run: pip install pytest
+      - name: Check python and install dependencies
+        run: |
+          python --version
+          pip install -r requirements.txt
       - name: Run tests
-        run: pytest src/tests/test_magneticgraph.py
+        run: |
+          pip install pytest
+          pytest src/tests/test_magneticgraph.py
