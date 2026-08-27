@@ -1,5 +1,5 @@
 name: test
-run-name: ${{ github.actor }} is learning GitHub Actions
+run-name: ${{ github.actor }} did a push
 on: [push]
 jobs:
   run-pytest-tests:
