@@ -36,7 +36,9 @@ def draw(G, **kwargs):
 
     # Check if there are nodes already defined
     node_coordinates = None
-    if isinstance(kwargs["node_pos"], dict):
+    node_pos = kwargs.get("node_pos", default_kwargs["node_pos"])
+    if isinstance(node_pos, dict):
+        node_coordinates = {}
         node_coordinates.update(kwargs["node_pos"])
 
         for u, pos in node_coordinates.items():
@@ -44,12 +46,12 @@ def draw(G, **kwargs):
             assert len(pos) == 2, "Coordinates must be a 2 items array"
 
     # Check if it's linked to some node attribute
-    elif kwargs["node_pos"] != None:
-        node_pos = kwargs["node_pos"]
+    elif node_pos != None:
         node_coordinates = {}
         for u in G.nodes:
             if node_pos in G.nodes[u]:
                 node_coordinates[u] = G.nodes[u][node_pos]
+
         if len(node_coordinates) == 0:
             node_coordinates = None
 
