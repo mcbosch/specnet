@@ -18,8 +18,8 @@ jobs:
       - name: Run test graph creation
         run: pytest src/tests/test_magneticgraph.py
       - name: Run test laplacian
-        run: pytest src/linalg/tests/test_laplacian.py
+        run: pytest src/specnet/linalg/tests/test_laplacian.py
       - name: Run test frames
         run: |
-          pytest src/frames/tests/test_frames.py
-          pytest src/frames/tests/test_frames_spectrum.py
+          pytest src/specnet/frames/tests/test_frames.py
+          pytest src/specnet/frames/tests/test_frames_spectrum.py
