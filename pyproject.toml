@@ -12,7 +12,7 @@ authors = [
 
 readme = 'README.md'
 license = 'MIT'
-requires-python = '>=3.10'
+requires-python = '>=3.12'
 keywords = [
    'Networks',
    'Graph Theory',
@@ -23,6 +23,7 @@ dependencies = [
     "numpy",
     "networkx",
     "scipy",
+    "matplotlib",
 ]
 
 [project.optional-dependencies]
@@ -30,4 +31,5 @@ packages = [
      'specnet',
      'specnet.frames',
      'specnet.linalg',
+     'specnet.drawing',
 ]
