@@ -40,23 +40,24 @@ def draw(G, **kwargs):
         "layoyt": "spring_layout",
         "node_pos": None,
         "node_visible": True,
-        "node_color": '#000000',
-        "node_size": 75,
+        "node_color": '#505050',
+        "node_size": 40,
         "node_shape": 'o',
-        "node_alpha": 0.75,
+        "node_alpha": 1,
         "node_border_width": 1.0,
-        "node_border_alpha": 1,
+        "node_border_alpha": 0.5,
         "node_border_color": '#000000',
         "node_label": None,
         "edge_visible": True,
-        "edge_width": 1,
-        "edge_color": '#704A6D',
+        "edge_width": 0.075,
+        "edge_color": '#202020',
         "edge_alpha": 1,
         "edge_label": None,
         "edge_arrow_size": 10,
         "edge_curvature": "arc3",
         "draw_potential": False,
         "hide_ticks": True, 
+        "theta_sep": 0.075,
     }
     # check all kwargs are allowed
     for kwarg in kwargs:
@@ -125,12 +126,15 @@ def draw(G, **kwargs):
             for key in keys10:
                 edges_to_draw[(e[1],e[0],key)] = False
 
-            if len(keys01) + len(keys10) == 1:
+            k = len(keys01) + len(keys10)
+
+            if  k == 1:
                 thetas = [0]
             else:
-                thetas = np.linspace(-np.pi/5, 
-                                     np.pi/5, 
-                                     len(keys01) + len(keys10))
+                th = kwargs.get("theta_sep", default_kwargs["theta_sep"])
+                thetas = np.linspace(-th * (k//2), 
+                                     th * (k//2), 
+                                     k)
                 
             p0, p1 = node_coordinates[e[0]], node_coordinates[e[1]]
             for i in range(len(keys01)+len(keys10)):
