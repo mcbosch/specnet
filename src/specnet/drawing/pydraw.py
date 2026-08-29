@@ -96,8 +96,9 @@ def draw(G, **kwargs):
         "edge_label": None,
         "edge_arrow_size": 10,
         "draw_potential": False,
-        "hide_ticks": True, 
         "theta_sep": 0.075,
+        "hide_ticks": True, 
+        "hide_axis": False,
     }
     # check all kwargs are allowed
     for kwarg in kwargs:
@@ -169,7 +170,13 @@ def draw(G, **kwargs):
                                                         default_kwargs["edge_alpha"]),
                                      )
     ax.add_collection(line_collection)  
-    
+
+    if kwargs.get("hide_axis", default_kwargs["hide_axis"]):
+        ax.set_axis_off()
+    elif kwargs.get("hide_ticks", default_kwargs["hide_ticks"]):
+        ax.set_xticks([])
+        ax.set_yticks([])
+
     return ax
 
 
