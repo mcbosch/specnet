@@ -40,21 +40,20 @@ def draw(G, **kwargs):
         "layoyt": "spring_layout",
         "node_pos": None,
         "node_visible": True,
-        "node_color": '#505050',
+        "node_color": '#003050',
         "node_size": 40,
         "node_shape": 'o',
         "node_alpha": 1,
         "node_border_width": 1.0,
-        "node_border_alpha": 0.5,
-        "node_border_color": '#000000',
+        "node_border_alpha": 1,
+        "node_border_color": '#101010',
         "node_label": None,
         "edge_visible": True,
-        "edge_width": 0.075,
-        "edge_color": '#202020',
+        "edge_width": 0.5,
+        "edge_color": '#000000',
         "edge_alpha": 1,
         "edge_label": None,
         "edge_arrow_size": 10,
-        "edge_curvature": "arc3",
         "draw_potential": False,
         "hide_ticks": True, 
         "theta_sep": 0.075,
@@ -145,7 +144,11 @@ def draw(G, **kwargs):
                 
     line_collection = LineCollection(edge_line_collection,
                                      colors=edge_colors_collection,
+                                     linewidths= kwargs.get("edge_width", 
+                                                            default_kwargs["edge_width"]),
                                      zorder=1,
+                                     alpha = kwargs.get("edge_alpha",
+                                                        default_kwargs["edge_alpha"])
                                      )
     ax.add_collection(line_collection)  
     
