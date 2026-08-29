@@ -5,11 +5,52 @@ from networkx.drawing.layout import spring_layout
 import matplotlib.pyplot as plt
 import numpy as np
 
+def _node_layout(G, node_pos=None):
+
+    node_coordinates = None
+    if isinstance(node_pos, dict):
+        node_coordinates = {}
+        node_coordinates.update(node_pos)
+
+        for u, pos in node_coordinates.items():
+            assert u in G.nodes, "node_pos keys must be nodes"
+            assert len(pos) == 2, "Coordinates must be a (2,)-array"
+
+    # Check if it's linked to some node attribute
+    elif node_pos != None:
+        node_coordinates = {}
+        for u in G.nodes:
+            if node_pos in G.nodes[u]:
+                node_coordinates[u] = G.nodes[u][node_pos]
+
+        if len(node_coordinates) == 0:
+            node_coordinates = None
+
+    fixed = list(node_coordinates.keys()) if isinstance(node_coordinates, dict) else None
+    node_coordinates = spring_layout(G, pos=node_coordinates, fixed=fixed)
+
+    return node_coordinates
+
+
 def _arc(p0, p1, theta, k = 100):
     r"""
     This functions returns a (k, 2)-array
     with the points defining an arc that gpes 
     from p0 to p1 with incidence angle theta.
+
+    Parameters
+    ----------
+        - p0 : ((2,)-array) tail point
+        - p1 : ((2,)-array) head point
+        - theta : (float) incidence angle
+        - k : optional int (default = 100)
+            linspace partition
+    
+    Returns
+    -------
+        - (k, 2)-array with the points defining
+        the arc between p0 and p1
+
     """
     # Define unit vector with direction p0->p1
     v = np.array(
@@ -66,31 +107,8 @@ def draw(G, **kwargs):
     ax = plt.gca()
     # TODO: Plot only visible nodes --> creating a subgraph of visible nodes
     # Check if there are nodes already defined
-
-    node_coordinates = None
-    node_pos = kwargs.get("node_pos", default_kwargs["node_pos"])
-    if isinstance(node_pos, dict):
-        node_coordinates = {}
-        node_coordinates.update(kwargs["node_pos"])
-
-        for u, pos in node_coordinates.items():
-            assert u in G.nodes, "node_pos keys must be nodes"
-            assert len(pos) == 2, "Coordinates must be a 2 items array"
-
-    # Check if it's linked to some node attribute
-    elif node_pos != None:
-        node_coordinates = {}
-        for u in G.nodes:
-            if node_pos in G.nodes[u]:
-                node_coordinates[u] = G.nodes[u][node_pos]
-
-        if len(node_coordinates) == 0:
-            node_coordinates = None
-
-    fixed = list(node_coordinates.keys()) if isinstance(node_coordinates, dict) else None
-    node_coordinates = spring_layout(G, pos=node_coordinates, fixed=fixed)
-
     # Draw nodes
+    node_coordinates = _node_layout(G, node_pos=kwargs.get("node_pos", None))
     positions = np.array(list(node_coordinates.values()))
     ax.scatter(
         positions[:,0],
@@ -148,7 +166,7 @@ def draw(G, **kwargs):
                                                             default_kwargs["edge_width"]),
                                      zorder=1,
                                      alpha = kwargs.get("edge_alpha",
-                                                        default_kwargs["edge_alpha"])
+                                                        default_kwargs["edge_alpha"]),
                                      )
     ax.add_collection(line_collection)  
     
