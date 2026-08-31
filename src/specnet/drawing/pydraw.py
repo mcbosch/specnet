@@ -159,23 +159,25 @@ def draw(G, **kwargs):
     node_coordinates = _node_layout(G, node_pos=kwargs.get("node_pos", None))
     positions = np.array(list(node_coordinates.values()))
     # color
+    # breakpoint()
     if _supported_color(kwargs.get("node_color", default_kwargs["node_color"])):
         colors = kwargs.get("node_color", default_kwargs["node_color"])
     
     else: # must be a key of the nodes
-        if isinstance(kwarg["node_color"], dict):
+        if isinstance(kwargs["node_color"], dict):
             colors = nx.get_node_attributes(G, '', default_kwargs["node_color"])    
             colors.update(kwargs["node_color"])
         else:
             colors = nx.get_node_attributes(G, kwargs["node_color"], default_kwargs["node_color"])
 
         colors = list(colors.values())
+
     
     ax.scatter(
         positions[:,0],
         positions[:,1],
         s = kwargs.get("node_size", default_kwargs["node_size"]),
-        c = kwargs.get("node_color", default_kwargs["node_color"]),
+        c = colors,
         marker = kwargs.get("node_shape", default_kwargs["node_shape"]),
         alpha = kwargs.get("node_alpha", default_kwargs["node_alpha"]),
         linewidths = kwargs.get("node_border_width", default_kwargs["node_border_width"]),
