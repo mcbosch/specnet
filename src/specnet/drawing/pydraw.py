@@ -130,7 +130,6 @@ def draw(G, **kwargs):
         "node_shape": 'o',
         "node_alpha": 1,
         "node_border_width": 1.0,
-        "node_border_alpha": 1,
         "node_border_color": '#101010',
         "node_label": None,
         "edge_visible": True,
@@ -159,7 +158,6 @@ def draw(G, **kwargs):
     node_coordinates = _node_layout(G, node_pos=kwargs.get("node_pos", None))
     positions = np.array(list(node_coordinates.values()))
     # color
-    # breakpoint()
     if _supported_color(kwargs.get("node_color", default_kwargs["node_color"])):
         colors = kwargs.get("node_color", default_kwargs["node_color"])
     
@@ -171,7 +169,33 @@ def draw(G, **kwargs):
             colors = nx.get_node_attributes(G, kwargs["node_color"], default_kwargs["node_color"])
 
         colors = list(colors.values())
-
+    # linewidths
+    node_border_width = kwargs.get('node_border_width', default_kwargs['node_border_width'])
+    if isinstance(node_border_width, dict):
+        node_border_width = nx.get_node_attributes(G, '', default_kwargs['node_border_width'])
+        node_border_width.update(kwargs['node_border_width'])
+        node_border_width = list(node_border_width.values())
+    elif isinstance(node_border_width, str):
+        node_border_width = nx.get_node_attributes(G, kwargs["node_border_width"], default_kwargs['node_border_width'])
+        node_border_width = list(node_border_width.values())
+    # edge_colors
+    node_border_color = kwargs.get('node_border_color', default_kwargs['node_border_color'])
+    if isinstance(node_border_color, dict):
+        node_border_color = nx.get_node_attributes(G, '', default_kwargs['node_border_color'])
+        node_border_color.update(kwargs['node_border_color'])
+        node_border_color = list(node_border_color.values())
+    elif not _supported_color(node_border_color):
+        node_border_color = nx.get_node_attributes(G, kwargs["node_border_color"], default_kwargs['node_border_color'])
+        node_border_color = list(node_border_color.values())
+    # node_alpha
+    node_alpha = kwargs.get('node_alpha', default_kwargs['node_alpha'])
+    if isinstance(node_alpha, dict):
+        node_alpha = nx.get_node_attributes(G, '', default_kwargs['node_alpha'])
+        node_alpha.update(kwargs['node_alpha'])
+        node_alpha = list(node_alpha.values())
+    elif isinstance(node_alpha, str):
+        node_alpha = nx.get_node_attributes(G, kwargs["node_alpha"], default_kwargs['node_alpha'])
+        node_alpha = list(node_alpha.values())
     
     ax.scatter(
         positions[:,0],
@@ -179,9 +203,9 @@ def draw(G, **kwargs):
         s = kwargs.get("node_size", default_kwargs["node_size"]),
         c = colors,
         marker = kwargs.get("node_shape", default_kwargs["node_shape"]),
-        alpha = kwargs.get("node_alpha", default_kwargs["node_alpha"]),
-        linewidths = kwargs.get("node_border_width", default_kwargs["node_border_width"]),
-        edgecolors = kwargs.get("node_border_color", default_kwargs["node_border_color"]),
+        alpha = node_alpha,
+        linewidths = node_border_width,
+        edgecolors = node_border_color,
         zorder=2,
     )
 
