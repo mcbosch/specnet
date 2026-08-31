@@ -11,13 +11,13 @@ Future work is going to focus on create functions to work with signals on graphs
 To install the package you can run the following command in the enviorement you want to install the package:
 
 ```
-pip install git+https://github.com/mcbosch/specnet.git
-```
-To install an specific version (now only v1.0 available) you can run:
-```
-pip install git+https://github.com/mcbosch/specnet.git@v1.0
+pip install specnet
 ```
 
+If you want to install the last version in github you can run
+```
+pip install git+https://github.com/mcbosch/specnet.git
+```
 ### Create a Virtual env and Install
 
 If you want to run experiments on your computer and create a virtual enviorment with this package you can create a folder where you want to work, go to that folder and execute the following code on your machine:
@@ -25,21 +25,21 @@ If you want to run experiments on your computer and create a virtual enviorment 
 ```
 > python -m venv env_name
 > env_name\Scripts\activate
-> pip install git+https://github.com/mcbosch/specnet.git
+> pip install specnet
 ```
 
 #### Linux, MacOS or GitBash
 ```
 $ python -m venv env_name
 $ source env_name/Scripts/activate
-$ pip install git+https://github.com/mcbosch/specnet.git
+$ pip install specnet
 ```
 
 #### Conda
 ```
 > conda create --name env_name python=3.10 
 > conda activate env_name
-> pip install git+https://github.com/mcbosch/specnet.git
+> pip install specnet
 ```
 ## References
 
