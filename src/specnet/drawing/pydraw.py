@@ -1,11 +1,54 @@
 from specnet.magraph import MagGraph
 from specnet.frames.frame_graphs import FrameFamily
-from networkx.drawing.layout import spring_layout
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+def _supported_color(c):
+    r"""
+    This function returns a bool encoding if the 
+    color 'c' is  supported in matplotlib.colors (mcolors). 
+    The possible colors are:
+        - str with color name. A name of a color  in one of
+        the lists mcolors.BASE_COLORS, mcolors.TABLEAU_COLORS,
+        mcolors.CSS4_COLORS
+
+        - str with HEX code. (#------)
+
+        - rgb or rgba tuple. (0-1, 0-1, 0-1) or (0-1, 0-1, 0-1, 0-1)
+
+    Parameters
+    ----------
+        c : any value
+    
+    Returns
+    -------
+        Bool encoding if `c` is a supported color in matplotlib.
+    """
+    import matplotlib.colors as mcolors
+
+    colors_name = list(mcolors.BASE_COLORS.keys())
+    colors_name += list(mcolors.TABLEAU_COLORS.keys())
+    colors_name += list(mcolors.CSS4_COLORS.keys())
+
+    if isinstance(c, str):
+        # c must be HEX color or color name
+        if c[0] == '#' and len(c) == 7:
+            return True
+
+        elif c in colors_name:
+            return True
+
+    elif isinstance(c, tuple):
+        if len(c) == 3 or len(c) == 4:
+            return True
+
+    return  False
+
+
 def _node_layout(G, node_pos=None):
+
+    from networkx.drawing.layout import spring_layout
 
     node_coordinates = None
     if isinstance(node_pos, dict):
@@ -76,6 +119,7 @@ def draw(G, **kwargs):
     use NetworkX methods.
     """
     from matplotlib.collections import LineCollection
+    import networkx as nx
 
     default_kwargs = {
         "layoyt": "spring_layout",
@@ -100,17 +144,33 @@ def draw(G, **kwargs):
         "hide_ticks": True, 
         "hide_axis": False,
     }
+
     # check all kwargs are allowed
     for kwarg in kwargs:
         assert kwarg in default_kwargs, f"Invalid argument: {kwarg}"
 
     # Get currenx axes
     ax = plt.gca()
-    # TODO: Plot only visible nodes --> creating a subgraph of visible nodes
-    # Check if there are nodes already defined
-    # Draw nodes
+
+    # ====================  Draw nodes  ====================================
+    # TODO Get only visible nodes
+    # Get node attributes
+    # pos
     node_coordinates = _node_layout(G, node_pos=kwargs.get("node_pos", None))
     positions = np.array(list(node_coordinates.values()))
+    # color
+    if _supported_color(kwargs.get("node_color", default_kwargs["node_color"])):
+        colors = kwargs.get("node_color", default_kwargs["node_color"])
+    
+    else: # must be a key of the nodes
+        if isinstance(kwarg["node_color"], dict):
+            colors = nx.get_node_attributes(G, '', default_kwargs["node_color"])    
+            colors.update(kwargs["node_color"])
+        else:
+            colors = nx.get_node_attributes(G, kwargs["node_color"], default_kwargs["node_color"])
+
+        colors = list(colors.values())
+    
     ax.scatter(
         positions[:,0],
         positions[:,1],
@@ -180,6 +240,39 @@ def draw(G, **kwargs):
     return ax
 
 
-# TODO
-def draw_frames(F, A, **kwargs):
-    pass
+def draw_frames(F, A, S1=[], **kwargs):
+    default_kwargs = {
+            "layoyt": "spring_layout",
+            "node_pos": None,
+            "node_visible": True,
+            "node_color": '#003050',
+            "node_size": 40,
+            "node_shape": 'o',
+            "node_alpha": 1,
+            "node_border_width": 1.0,
+            "node_border_alpha": 1,
+            "node_border_color": '#101010',
+            "node_label": None,
+            "edge_visible": True,
+            "edge_width": 0.5,
+            "edge_color": '#000000',
+            "edge_alpha": 1,
+            "edge_label": None,
+            "edge_arrow_size": 10,
+            "draw_potential": False,
+            "theta_sep": 0.075,
+            "hide_ticks": True, 
+            "hide_axis": False,
+        }
+
+    if isinstance(A, list):
+        G = F.generate_r_frame(A, S1)
+    elif isinstance(A, int):
+        G = F.generate_frame(A)
+    else:
+        raise ValueError(
+            f"Must introduce a list with int values or an int."+
+                f"{A} is no soported"
+        )
+
+    node_coordinates = _node_layout(F.graph, node_pos=kwargs.get("node_pos", default_kwargs["node_pos"]))
