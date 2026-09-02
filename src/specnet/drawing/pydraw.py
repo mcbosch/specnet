@@ -110,7 +110,23 @@ def _arc(p0, p1, theta, k = 100):
     uh = h.reshape(-1,1) * u
 
     return p0 + vt + uh
-   
+
+
+def _rotation(v, theta):
+    dx = v[0] * np.cos(theta) - v[1] * np.sin(theta)
+    dy = v[0] * np.sin(theta) + v[1] * np.cos(theta)
+    return np.array([dx, dy])
+
+def _angle(v1, v2):
+    if v2@_rotation(v1, np.pi/2) < 0:
+        return 2 * np.pi - np.acos(v1 @ v2)
+    else:
+        return np.acos(v1 @ v2)
+
+
+def _loop(p0, r, phi_0, theta, k=100):
+    pass
+
 
 def draw(G, **kwargs):
     r"""
@@ -209,13 +225,15 @@ def draw(G, **kwargs):
         zorder=2,
     )
 
+    # ====================  Draw edges  ====================================
     edges = G.edges(keys=True)
     edges_to_draw = {e: True for e in edges}
 
     edge_line_collection = []
+    loops_colection = set()
     edge_colors_collection = []
     for e in edges:
-        if edges_to_draw[e]:
+        if edges_to_draw[e] and e[0]!=e[1]:
             # Number of edges to plot between e[0] and e[1]
             keys01 = list(G._adj[e[0]][e[1]].keys())
             keys10 = []
@@ -231,7 +249,7 @@ def draw(G, **kwargs):
                 edges_to_draw[(e[1],e[0],key)] = False
 
             k = len(keys01) + len(keys10)
-
+            
             if  k == 1:
                 thetas = [0]
             else:
@@ -246,6 +264,24 @@ def draw(G, **kwargs):
                 edge_colors_collection.append(
                     kwargs.get("edge_color",
                                     default_kwargs["edge_color"]))
+
+        elif e[0] == e[1]:
+            loops_colection.add(e[0])
+            edges_to_draw[(e[0],e[1],e[2])] = False
+
+    for u in loops_colection:
+        vec_prev = None
+        thetas = {}
+        for v in G._adj[u]:
+            pos_u, pos_v = node_coordinates[u], node_coordinates[v]
+            vec_uv = np.array([
+                pos_v[0] - pos_u[0],
+                pos_v[1] - pos_u[1],
+            ])
+            thetas[v] = _angle(np.array([1,0]),
+                                vec_uv)
+
+    
                 
     line_collection = LineCollection(edge_line_collection,
                                      colors=edge_colors_collection,
