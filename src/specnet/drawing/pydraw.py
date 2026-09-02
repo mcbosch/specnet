@@ -118,10 +118,12 @@ def _rotation(v, theta):
     return np.array([dx, dy])
 
 def _angle(v1, v2):
+    n1 = np.sqrt(v1[0] + v1[1])
+    n2 = np.sqrt(v2[0] + v2[1])
     if v2@_rotation(v1, np.pi/2) < 0:
-        return 2 * np.pi - np.acos(v1 @ v2)
+        return 2 * np.pi - np.acos((v1 @ v2)/(n1 * n2))
     else:
-        return np.acos(v1 @ v2)
+        return np.acos((v1 @ v2)/(n1 * n2))
 
 
 def _loop(p0, r, phi_0, theta, k=100):
@@ -135,6 +137,8 @@ def draw(G, **kwargs):
     use NetworkX methods.
     """
     from matplotlib.collections import LineCollection
+    from collections import defaultdict
+
     import networkx as nx
 
     default_kwargs = {
@@ -230,8 +234,9 @@ def draw(G, **kwargs):
     edges_to_draw = {e: True for e in edges}
 
     edge_line_collection = []
-    loops_colection = set()
     edge_colors_collection = []
+
+    loops_collection = defaultdict(list)
     for e in edges:
         if edges_to_draw[e] and e[0]!=e[1]:
             # Number of edges to plot between e[0] and e[1]
@@ -266,11 +271,12 @@ def draw(G, **kwargs):
                                     default_kwargs["edge_color"]))
 
         elif e[0] == e[1]:
-            loops_colection.add(e[0])
+            loops_collection[e[0]].append(e[2])
             edges_to_draw[(e[0],e[1],e[2])] = False
 
-    for u in loops_colection:
-        vec_prev = None
+    color_loops = []
+    loops_line_collection = []
+    for u, keys in loops_collection.items():
         thetas = {}
         for v in G._adj[u]:
             pos_u, pos_v = node_coordinates[u], node_coordinates[v]
@@ -278,8 +284,12 @@ def draw(G, **kwargs):
                 pos_v[0] - pos_u[0],
                 pos_v[1] - pos_u[1],
             ])
-            thetas[v] = _angle(np.array([1,0]),
-                                vec_uv)
+            thetas[v] = _angle(np.array([1,0]), vec_uv)
+
+        thetas = np.sort(thetas)
+        thetas_in_space = list(np.diff(thetas)) + [2 * np.pi - thetas[-1] + thetas[0]]
+
+        i_max = np.argmax(thetas_in_space)
 
     
                 
