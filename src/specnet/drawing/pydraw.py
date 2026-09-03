@@ -112,22 +112,44 @@ def _arc(p0, p1, theta, k = 100):
     return p0 + vt + uh
 
 
-def _rotation(v, theta):
-    dx = v[0] * np.cos(theta) - v[1] * np.sin(theta)
-    dy = v[0] * np.sin(theta) + v[1] * np.cos(theta)
-    return np.array([dx, dy])
+def rotation(v, theta):
+    r"""
+    Parameters
+    ----------
+        - v : np.darray(K, 2) or np.darray(,2)
+        - theta : float
+            Angle of rotation
+    Returns
+    -------
+        A np.darray(K,2) or np.darray(,2) with the
+        rotated vectors
+    """
+    if len(v.shape) == 1:
+        assert len(v) == 2, "You can only rotate 2-d vectors"
+        dx = v[0] * np.cos(theta) - v[1] * np.sin(theta)
+        dy = v[0] * np.sin(theta) + v[1] * np.cos(theta)
+        return np.array([dx, dy])
+    elif len(v.shape) == 2:
+        assert v.shape[1] == 2, "You can only rotate 2-d vectors"
+        dx = v[:,0] * np.cos(theta) - v[:,1] * np.sin(theta)
+        dy = v[:,0] * np.sin(theta) + v[:,1] * np.cos(theta) 
+        return np.array([dx,dy]).reshape(-1,2)
 
 def _angle(v1, v2):
-    n1 = np.sqrt(v1[0] + v1[1])
-    n2 = np.sqrt(v2[0] + v2[1])
-    if v2@_rotation(v1, np.pi/2) < 0:
+    n1 = np.sqrt(v1[0]**2 + v1[1]**2)
+    n2 = np.sqrt(v2[0]**2 + v2[1]**2)
+    if v2@rotation(v1, np.pi/2) < 0:
         return 2 * np.pi - np.acos((v1 @ v2)/(n1 * n2))
     else:
         return np.acos((v1 @ v2)/(n1 * n2))
 
 
 def _loop(p0, r, phi_0, theta, k=100):
-    pass
+    angles = np.linspace(-theta, theta, k)
+    radius = r * np.cos((np.pi/(2 * theta)) * (angles)) # dim (K, )
+    x = (np.cos(angles + phi_0) * radius).reshape(-1,1) * np.array([1, 0])
+    y = (np.sin(angles + phi_0) * radius).reshape(-1,1) * np.array([0, 1])
+    return p0 + x  +  y
 
 
 def draw(G, **kwargs):
@@ -277,20 +299,32 @@ def draw(G, **kwargs):
     color_loops = []
     loops_line_collection = []
     for u, keys in loops_collection.items():
-        thetas = {}
+        thetas = []
+        pos_u = node_coordinates[u]
         for v in G._adj[u]:
-            pos_u, pos_v = node_coordinates[u], node_coordinates[v]
-            vec_uv = np.array([
-                pos_v[0] - pos_u[0],
-                pos_v[1] - pos_u[1],
-            ])
-            thetas[v] = _angle(np.array([1,0]), vec_uv)
+            if v!= u:
+                pos_v = node_coordinates[v]
+                vec_uv = np.array([
+                    pos_v[0] - pos_u[0],
+                    pos_v[1] - pos_u[1],
+                ])
 
-        thetas = np.sort(thetas)
-        thetas_in_space = list(np.diff(thetas)) + [2 * np.pi - thetas[-1] + thetas[0]]
+                thetas.append(_angle(np.array([1,0]), vec_uv))
+        if len(thetas) == 0: 
+            th = kwargs.get("theta_sep", default_kwargs["theta_sep"])
+            phis = np.linspace(th, 2*np.pi - th, k)
+        else:
+            thetas = np.sort(thetas)
+            thetas_in_space = list(np.diff(thetas)) + [2 * np.pi - thetas[-1] + thetas[0]]
 
-        i_max = np.argmax(thetas_in_space)
+            i_max = np.argmax(thetas_in_space)
+            th = kwargs.get("theta_sep", default_kwargs["theta_sep"])
 
+            k = len(keys) # number of loops to define
+            phis = np.linspace(thetas[i_max] + th, thetas[i_max] + thetas_in_space[i_max] - th, k)
+
+            for p in phis:
+                loops_line_collection.append(_loop(pos_u, 1, p, th))
     
                 
     line_collection = LineCollection(edge_line_collection,
@@ -302,6 +336,17 @@ def draw(G, **kwargs):
                                                         default_kwargs["edge_alpha"]),
                                      )
     ax.add_collection(line_collection)  
+
+    loopl_collection = LineCollection(loops_line_collection,
+                                     colors=kwargs.get("edge_color",
+                                                       default_kwargs["edge_color"]),
+                                     linewidths= kwargs.get("edge_width", 
+                                                            default_kwargs["edge_width"]),
+                                     zorder=1,
+                                     alpha = kwargs.get("edge_alpha",
+                                                        default_kwargs["edge_alpha"]),
+                                     )
+    ax.add_collection(loopl_collection)  
 
     if kwargs.get("hide_axis", default_kwargs["hide_axis"]):
         ax.set_axis_off()
